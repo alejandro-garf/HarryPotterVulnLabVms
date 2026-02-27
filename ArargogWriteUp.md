@@ -1,6 +1,6 @@
 # Penetration Testing Write-Up
 ## VulnHub HarryPotter: Aragog (1.0.2)
-**Alejandro Garcia | February 26, 2026**
+**Alejandro Fonseca | February 26**
 
 ---
 
