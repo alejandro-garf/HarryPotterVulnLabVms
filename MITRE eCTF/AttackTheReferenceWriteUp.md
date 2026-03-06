@@ -59,6 +59,10 @@ Serial ports were identified by running `ls /dev/tty*` with and without each boa
 
 - **Attacker board:** `/dev/ttyACM2`, `/dev/ttyACM3`
 - **Engineer board:** `/dev/ttyACM0`, `/dev/ttyACM1`
+  
+<img width="1299" height="775" alt="Flashedattckerboard" src="https://github.com/user-attachments/assets/21f8f1af-2440-4de2-b6d3-3dcf7b6f777e" />
+
+<img width="1212" height="755" alt="flashedengineer" src="https://github.com/user-attachments/assets/4ce37da3-779a-4c26-92d9-0061ac83562a" />
 
 Each board was erased, flashed with its respective firmware, and started:
 
@@ -74,10 +78,6 @@ uvx ectf hw /dev/ttyACM0 start
 
 Successful flashing was confirmed by the LED changing from blinking red to solid.
 
-![Flashed attacker board](https://github.com/user-attachments/assets/219976f1-d629-459b-b209-d54a216b73c6)
-
-![Flashed engineer board](https://github.com/user-attachments/assets/6a2d1c40-76b2-4ec5-ad18-a689ac04e81d)
-
 ---
 
 ## Step 3 — Boot Reference Flag and Read Flags
@@ -92,7 +92,7 @@ The list command succeeded and the boot reference flag was returned in the debug
 
 > **Boot Reference Flag:** `ectf{boot_e2218e27c4d4255d}`
 
-![List successful](https://github.com/user-attachments/assets/18f54a54-2bac-41d3-a7a6-5fe64e24b556)
+<img width="1602" height="408" alt="listsuccesful" src="https://github.com/user-attachments/assets/5228a1d1-7d45-480e-88c1-f061376e7d15" />
 
 A read command was then issued to retrieve the contents of slot 0, which belonged to the update group:
 
@@ -104,9 +104,9 @@ The file was successfully read and written to the output directory. The flag was
 
 > **Read Update Flag:** `ectf{update_8193461bae8c46d1}`
 
-![Read file](https://github.com/user-attachments/assets/8d1471d0-51da-4347-bbf0-7176a2744581)
+<img width="1842" height="374" alt="readfile" src="https://github.com/user-attachments/assets/acf7a530-8729-4967-a281-5ee20b455ef3" />
 
-![Read update flag](https://github.com/user-attachments/assets/231a892f-4ff1-4012-9138-cc29737b2f46)
+<img width="1924" height="1098" alt="readupdateflag" src="https://github.com/user-attachments/assets/e64d976a-f23b-40b5-863e-dbf9fc4bf0f4" />
 
 The same approach was used against the engineer board. Because the reference design implements no PIN validation, any PIN is accepted:
 
@@ -117,9 +117,9 @@ uvx ectf tools /dev/ttyACM0 read -f 405984 0 out
 
 > **Read Design Flag:** `ectf{design_f1ba8321b19521e6}`
 
-![Engineer board list successful](https://github.com/user-attachments/assets/4b8d3639-1171-40cb-bf34-d4b5c25067d6)
+<img width="1582" height="256" alt="engineerbopardlistsuccesful" src="https://github.com/user-attachments/assets/d0e34839-4028-4f6b-8319-c17cc9392a47" />
 
-![Read design flag](https://github.com/user-attachments/assets/5e16ea1f-5fea-4015-8069-ff6c6a4994cf)
+<img width="1800" height="544" alt="readdesignflag" src="https://github.com/user-attachments/assets/ede48610-f7ee-4018-a202-da38b28d4b86" />
 
 ---
 
@@ -153,11 +153,11 @@ uvx ectf api steal mitre {digest}
 
 > **Steal Design Flag:** `ectf{steal_6dc6921061cf5b43}`
 
-![Successful receive](https://github.com/user-attachments/assets/11f36ac5-323d-4f5f-977f-6081a8f4b38e)
+<img width="3024" height="1148" alt="succesfulreceive" src="https://github.com/user-attachments/assets/699839b4-5478-4e50-a723-8bccc5666821" />
 
-![API digest](https://github.com/user-attachments/assets/d47fe1d2-3b2f-4deb-8991-05efefddd3e4)
+<img width="1420" height="348" alt="apidigest" src="https://github.com/user-attachments/assets/a0b08bdf-7406-478e-b75c-dfb27d1ceb9b" />
 
-![Steal flag](https://github.com/user-attachments/assets/4d2cfd49-c4f2-4f1c-a80c-53b142da37c8)
+<img width="3490" height="480" alt="stealflag" src="https://github.com/user-attachments/assets/6bb60c2c-feda-4415-9e5b-d749bc238257" />
 
 ---
 
