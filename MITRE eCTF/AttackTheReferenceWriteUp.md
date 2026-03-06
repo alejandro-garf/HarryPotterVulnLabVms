@@ -74,6 +74,10 @@ uvx ectf hw /dev/ttyACM0 start
 
 Successful flashing was confirmed by the LED changing from blinking red to solid.
 
+![Flashed attacker board](https://github.com/user-attachments/assets/219976f1-d629-459b-b209-d54a216b73c6)
+
+![Flashed engineer board](https://github.com/user-attachments/assets/6a2d1c40-76b2-4ec5-ad18-a689ac04e81d)
+
 ---
 
 ## Step 3 — Boot Reference Flag and Read Flags
@@ -88,6 +92,8 @@ The list command succeeded and the boot reference flag was returned in the debug
 
 > **Boot Reference Flag:** `ectf{boot_e2218e27c4d4255d}`
 
+![List successful](https://github.com/user-attachments/assets/18f54a54-2bac-41d3-a7a6-5fe64e24b556)
+
 A read command was then issued to retrieve the contents of slot 0, which belonged to the update group:
 
 ```bash
@@ -98,6 +104,10 @@ The file was successfully read and written to the output directory. The flag was
 
 > **Read Update Flag:** `ectf{update_8193461bae8c46d1}`
 
+![Read file](https://github.com/user-attachments/assets/8d1471d0-51da-4347-bbf0-7176a2744581)
+
+![Read update flag](https://github.com/user-attachments/assets/231a892f-4ff1-4012-9138-cc29737b2f46)
+
 The same approach was used against the engineer board. Because the reference design implements no PIN validation, any PIN is accepted:
 
 ```bash
@@ -106,6 +116,10 @@ uvx ectf tools /dev/ttyACM0 read -f 405984 0 out
 ```
 
 > **Read Design Flag:** `ectf{design_f1ba8321b19521e6}`
+
+![Engineer board list successful](https://github.com/user-attachments/assets/4b8d3639-1171-40cb-bf34-d4b5c25067d6)
+
+![Read design flag](https://github.com/user-attachments/assets/5e16ea1f-5fea-4015-8069-ff6c6a4994cf)
 
 ---
 
@@ -138,6 +152,12 @@ uvx ectf api steal mitre {digest}
 ```
 
 > **Steal Design Flag:** `ectf{steal_6dc6921061cf5b43}`
+
+![Successful receive](https://github.com/user-attachments/assets/11f36ac5-323d-4f5f-977f-6081a8f4b38e)
+
+![API digest](https://github.com/user-attachments/assets/d47fe1d2-3b2f-4deb-8991-05efefddd3e4)
+
+![Steal flag](https://github.com/user-attachments/assets/4d2cfd49-c4f2-4f1c-a80c-53b142da37c8)
 
 ---
 
